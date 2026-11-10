@@ -145,4 +145,4 @@ The smoke suite covers live publication and rollback, team isolation and key rev
 
 ## License
 
-[MIT License](LICENSE) · Copyright © 2026 Umesh
+[MIT License](LICENSE) · Copyright © 2026 [Umesh](https://umeshracha.com)
