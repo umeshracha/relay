@@ -1,14 +1,14 @@
-# Relay
+# Relay — Self-hosted API Gateway and Telemetry
 
 ![Relay — API telemetry gateway](docs/assets/relay-banner.png)
 
-A self-hosted gateway for existing HTTP APIs. The web catalog supports manual upstream registration and OpenAPI imports with a route preview and explicit publishing.
+Relay is an open-source, self-hosted API gateway for monitoring existing HTTP APIs. Import OpenAPI routes or register an upstream in the web portal, then add scoped API keys, rate limiting, and IP rules. The request dashboard tracks latency and errors and supports CSV exports.
 
 - Go 1.25+ and the standard library HTTP reverse proxy.
 - SQLite via the pure-Go modernc.org/sqlite driver.
 - Server-rendered HTML and CSS embedded in the Go binary.
 
-[Quick start](#run-locally) · [OpenAPI import](#import-an-openapi-api) · [Team access](#teams-keys-and-traffic-policies) · [Operations](#operate-a-deployment)
+[Quick start](#run-locally) · [OpenAPI import](#import-an-openapi-api) · [Team access](#teams-keys-and-traffic-policies) · [Operations](#operate-a-deployment) · [Current limitations](#current-limitations)
 
 ## Explore the features
 
@@ -48,6 +48,15 @@ See request counts, 5xx errors, gateway denials, and p50, p95, and p99 latency i
 [Bulk jobs](#bulk-jobs) preview OpenAPI imports and traffic rules, report failures by item, and support retry. The [audit log](#audit-log) records the actor and target for committed changes.
 
 </details>
+
+## Current limitations
+
+| Area | What to expect |
+| --- | --- |
+| High availability | Relay runs as one instance per SQLite database set. Rate limit counters live in memory and reset when the process restarts. Shared quotas across gateway replicas are still missing. |
+| Telemetry retention | Relay keeps the most recent 100,000 events. Its bounded queue can drop events under pressure, and a process crash can lose events that have yet to be written. |
+| Portal sign-in | The portal uses HTTP Basic authentication with local accounts and team roles. SSO through OIDC or SAML is still missing. |
+| Installation | The project documents a source build. Prebuilt GitHub release downloads and a GitHub Actions build pipeline are still missing. |
 
 ## Run locally
 
