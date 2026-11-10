@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team members · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/">API catalog</a> <a href="/access">Teams &amp; Keys</a></nav></header>
+<main>
+  <span class="label">ADMINISTRATION</span>
+  <h1>Team members and API grants</h1>
+  {{with .Secret}}<section><h2>Portal password for {{$.Username}}</h2><p>Share this password with the account owner through a secure channel. The portal displays it once.</p><input aria-label="New portal password" readonly value="{{.}}"></section>{{end}}
+  <section>
+    <h2>Create a portal account</h2>
+    <form method="post" action="/members/users" style="display:flex">
+      <label>Username<input name="username" maxlength="63" required></label>
+      <button>Create account</button>
+    </form>
+  </section>
+  {{if .Teams}}
+  <section>
+    <h2>Assign a team role</h2>
+    <form class="import" method="post" action="/members/roles">
+      <label>Username<input name="username" required maxlength="63"></label>
+      <label>Team<select name="team">{{range .Teams}}<option>{{.}}</option>{{end}}</select></label>
+      <label>Role<select name="role"><option value="viewer">Viewer</option><option value="operator">Operator</option><option value="team-admin">Team admin</option><option value="remove">Remove membership</option></select></label>
+      <button>Save role</button>
+    </form>
+    {{if .Memberships}}<ul>{{range .Memberships}}<li>{{.Team}} · {{.User}} · {{.Role}}</li>{{end}}</ul>{{end}}
+  </section>
+  {{end}}
+  {{if and .Teams .APIs}}
+  <section>
+    <h2>Grant a team access to an API</h2>
+    <form class="import" method="post" action="/members/grants">
+      <label>Team<select name="team">{{range .Teams}}<option>{{.}}</option>{{end}}</select></label>
+      <label>API<select name="api">{{range .APIs}}<option>{{.}}</option>{{end}}</select></label>
+      <label>Access<select name="mode"><option value="allow">Grant access</option><option value="revoke">Revoke access</option></select></label>
+      <button>Save grant</button>
+    </form>
+    {{if .Grants}}<ul>{{range .Grants}}<li>{{.Team}} · {{.API}} · {{if .Allowed}}Granted{{else}}Revoked{{end}}</li>{{end}}</ul>{{end}}
+  </section>
+  {{end}}
+</main>
+</html>

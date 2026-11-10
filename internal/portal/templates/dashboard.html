@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard" aria-current="page">Dashboard</a> <a href="/">API catalog</a> <a href="/requests">Requests</a> <a href="/access">Teams &amp; Keys</a> <a href="/policies">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">OBSERVE</span>
+  <h1>Dashboard</h1>
+  <form method="get" action="/dashboard">
+    <label>Time range<select name="window">
+      <option value="1h" {{if eq .Window "1h"}}selected{{end}}>Last hour</option>
+      <option value="24h" {{if eq .Window "24h"}}selected{{end}}>Last 24 hours</option>
+      <option value="7d" {{if eq .Window "7d"}}selected{{end}}>Last 7 days</option>
+    </select></label>
+    <button>Apply</button>
+  </form>
+  <section>
+    <h2>Traffic by API</h2>
+    {{if .Summaries}}
+    <div class="table"><table>
+      <thead><tr><th>API</th><th>Requests</th><th>5xx errors</th><th>Denied by gateway</th><th>p50 latency</th><th>p95 latency</th><th>p99 latency</th></tr></thead>
+      <tbody>{{range .Summaries}}<tr><th scope="row"><a href="/requests?api={{.API}}">{{.API}}</a></th><td>{{.Requests}}</td><td>{{.Errors}}</td><td>{{.Blocked}}</td><td>{{printf "%.1f" (milliseconds .P50)}} ms</td><td>{{printf "%.1f" (milliseconds .P95)}} ms</td><td>{{printf "%.1f" (milliseconds .P99)}} ms</td></tr>{{end}}</tbody>
+    </table></div>
+    {{else}}<p>Send requests through a published API to see traffic here.</p>{{end}}
+  </section>
+</main>
+</html>

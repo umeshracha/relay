@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Traffic Policies · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard">Dashboard</a> <a href="/">API catalog</a> <a href="/requests">Requests</a> <a href="/access">Teams &amp; Keys</a> <a href="/policies" aria-current="page">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">SECURITY</span>
+  <h1>Traffic policies</h1>
+  <p>Configure IP blocks and rate limits. Changes take effect immediately.</p>
+  <section>
+    <h2>Add an IP block</h2>
+    <form method="post" action="/policies">
+      <input type="hidden" name="scope" value="cidr">
+      <label>IP or CIDR<input name="target" placeholder="203.0.113.0/24" required></label>
+      <label>Mode<select name="mode"><option value="observe">Observe</option><option value="enforce">Enforce</option></select></label>
+      <button>Add IP rule</button>
+    </form>
+  </section>
+  <section>
+    <h2>Add a rate limit</h2>
+    <p>Targets use an API or team slug, <code>team/app</code>, or <code>api METHOD /route/{id}</code>. Leave the target empty for a per-IP anonymous limit.</p>
+    <form method="post" action="/policies" style="margin-top:12px">
+      <label>Scope<select name="scope"><option value="api">API</option><option value="team">Team</option><option value="app">Application</option><option value="route">Route</option><option value="ip">Anonymous IP</option></select></label>
+      <label>Target<input name="target" maxlength="2048"></label>
+      <label>Mode<select name="mode"><option value="observe">Observe</option><option value="enforce">Enforce</option></select></label>
+      <label>Requests per minute<input name="rate" type="number" min="1" max="1000000" value="60" required></label>
+      <label>Burst<input name="burst" type="number" min="1" max="1000000" value="10" required></label>
+      <button>Add rate limit</button>
+    </form>
+  </section>
+  <section>
+    <h2>Rules</h2>
+    {{if .}}
+    <div class="table"><table><thead><tr><th>ID</th><th>Scope and target</th><th>Limit</th><th>Mode</th><th>Action</th></tr></thead>
+    <tbody>{{range .}}<tr><th scope="row"><code>{{.ID}}</code></th><td>{{.Scope}} {{.Target}}</td><td>{{if .Rate}}{{.Rate}}/min · {{.Burst}} burst{{else}}IP block{{end}}</td>
+      <td>{{if .Observe}}Observe{{else}}Enforce{{end}}</td><td><form method="post" action="/policies/{{.ID}}/remove" style="display:block"><button>Remove</button></form></td></tr>{{end}}</tbody></table></div>
+    {{else}}<p>No traffic policies have been configured.</p>{{end}}
+  </section>
+</main>
+</html>

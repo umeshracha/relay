@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Catalog · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard">Dashboard</a> <a href="/">API catalog</a> <a href="/requests">Requests</a> <a href="/access">Teams &amp; Keys</a> <a href="/policies">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">MANAGE</span>
+  <h1>API catalog</h1>
+  <p>Register an HTTP upstream and get a gateway URL for it.</p>
+  {{if .Workspace}}<section>
+    <h2>Add an API</h2>
+    <form method="post" action="/apis">
+      <label>Gateway slug<input name="slug" placeholder="billing" pattern="[a-z0-9][a-z0-9\-]{0,62}" maxlength="63" required></label>
+      <label>Upstream URL<input name="upstream" type="url" placeholder="http://127.0.0.1:9000/api" maxlength="2048" required></label>
+      <button type="submit">Add API</button>
+    </form>
+    {{with .Error}}<p role="alert">{{.}}</p>{{end}}
+  </section>{{else}}{{with .Error}}<p role="alert">{{.}}</p>{{end}}{{end}}
+  {{if .CanImport}}<section>
+    <h2>Import OpenAPI</h2>
+    <form method="post" action="/imports" enctype="multipart/form-data" class="import">
+      <label>Gateway slug<input name="slug" placeholder="inventory" pattern="[a-z0-9][a-z0-9\-]{0,62}" maxlength="63" required></label>
+      <label>Upstream URL<input name="upstream" type="url" placeholder="http://127.0.0.1:9000/api" maxlength="2048" required></label>
+      <label>OpenAPI file<input name="document" type="file" accept=".json,.yaml,.yml" required></label>
+      <button type="submit">Preview routes</button>
+      <label><span>Update an existing imported API</span><input type="checkbox" name="revision" value="1" {{if not .Workspace}}checked required{{end}} style="width:auto;justify-self:start"></label>
+    </form>
+  </section>{{end}}
+  <section>
+    <h2>Configured APIs</h2>
+    {{if .APIs}}
+      <div class="table"><table>
+        <thead><tr><th>API</th><th>Gateway path</th><th>Upstream URL</th><th>State</th></tr></thead>
+        <tbody>{{range .APIs}}<tr><th scope="row">{{.Slug}}</th><td><code>/gateway/{{.Slug}}/</code></td><td>{{.Upstream}}</td><td>{{if .Draft}}<a href="/imports/{{.Slug}}">Review draft</a>{{else if .Revision}}<a href="/revisions/{{.Slug}}">Published v{{.Revision}} · History</a>{{else}}Published{{end}}</td></tr>{{end}}</tbody>
+      </table></div>
+    {{else}}
+      <p>Add your first upstream to get a gateway path.</p>
+    {{end}}
+  </section>
+</main>
+</html>

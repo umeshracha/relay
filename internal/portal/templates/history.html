@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Revision History · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/">API catalog</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">MANAGE</span>
+  <h1>{{.Slug}} revisions</h1>
+  <p>Review a draft or reactivate an earlier published configuration.</p>
+  <section>
+    <h2>Revision history</h2>
+    <div class="table"><table>
+      <thead><tr><th>Revision</th><th>Upstream</th><th>Routes</th><th>State</th><th>Action</th></tr></thead>
+      <tbody>{{range .Revisions}}<tr>
+        <th scope="row">v{{.Revision}}</th><td>{{.Upstream}}</td><td>{{len .Routes}}</td>
+        <td>{{if .Active}}Live{{else if .Draft}}Draft{{else}}Published{{end}}</td>
+        <td>{{if .Draft}}<a href="/imports/{{.Slug}}">Review</a>{{else if and $.Workspace (not .Active)}}
+          <form method="post" action="/revisions/{{.Slug}}/rollback" style="display:block">
+            <input type="hidden" name="revision" value="{{.Revision}}"><button>Activate v{{.Revision}}</button>
+          </form>
+        {{end}}</td>
+      </tr>{{end}}</tbody>
+    </table></div>
+  </section>
+</main>
+</html>

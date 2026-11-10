@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job details · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/">API catalog</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">OPERATIONS</span>
+  <h1>{{.Kind}}</h1>
+  <p>{{.State}} · {{.Succeeded}} of {{.Total}} succeeded · {{.Failed}} failed</p>
+  <section>
+    <h2>Items</h2>
+    <div class="table"><table><thead><tr><th>Item</th><th>State</th><th>Details</th></tr></thead>
+      <tbody>{{range .Items}}<tr><th scope="row">{{.Label}}</th><td>{{.State}}</td><td>
+        {{.Problem}}{{with .Routes}}<details><summary>{{len .}} routes</summary><ul>{{range .}}<li><code>{{.Method}} {{.Path}}</code></li>{{end}}</ul></details>{{end}}
+      </td></tr>{{end}}</tbody>
+    </table></div>
+    {{if and (eq .State "preview") (lt .Failed .Total)}}
+      <form method="post" action="/jobs/{{.ID}}/start" style="display:block"><button type="submit">Run valid items</button></form>
+    {{else if and (eq .Pending 0) .Retryable}}
+      <form method="post" action="/jobs/{{.ID}}/retry" style="display:block"><button type="submit">Retry failed items</button></form>
+    {{else if .Pending}}<p><a href="/jobs/{{.ID}}">Refresh progress</a></p>{{end}}
+    {{if .Failed}}<p><a href="/jobs/{{.ID}}/errors">Download errors</a></p>{{end}}
+    {{if .Downloadable}}<p><a href="/jobs/{{.ID}}/download">Download CSV</a> · Expires {{.Expires.Format "Jan 02, 15:04 UTC"}}</p>{{end}}
+  </section>
+</main>
+</html>

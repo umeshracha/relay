@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Request Explorer · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard">Dashboard</a> <a href="/">API catalog</a> <a href="/requests" aria-current="page">Requests</a> <a href="/access">Teams &amp; Keys</a> <a href="/policies">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">OBSERVE</span>
+  <h1>Request Explorer</h1>
+  <p>Gateway decisions and upstream responses. Latest 100 matching requests.</p>
+  <section>
+    <h2>Filter requests</h2>
+    <form class="filters" method="get" action="/requests">
+      <label>API slug<input name="api" value="{{.Filter.API}}" maxlength="63"></label>
+      <label>HTTP status<input name="status" type="number" min="100" max="599" value="{{if .Filter.Status}}{{.Filter.Status}}{{end}}"></label>
+      <label>Request ID<input name="id" value="{{.Filter.RequestID}}" maxlength="64"></label>
+      <div><button type="submit">Apply filters</button> <button type="submit" formaction="/requests.csv">Download CSV</button> {{if .Workspace}}<button type="submit" formaction="/jobs/export" formmethod="post">Queue full export</button>{{end}}</div>
+    </form>
+  </section>
+  <section>
+    <h2>Recent requests</h2>
+    <p>Telemetry events dropped since startup: {{.Dropped}}</p>
+    {{if .Events}}
+    <div class="table"><table>
+      <thead><tr><th>Started (UTC)</th><th>API and route</th><th>Status</th><th>Outcome</th><th>Duration</th><th>Request ID</th></tr></thead>
+      <tbody>{{range .Events}}
+        <tr><td>{{timestamp .Started}}</td><th scope="row">{{.API}}<br><code>{{.Method}} {{.Route}}</code></th>
+          <td>{{.Status}}</td><td>{{.Outcome}}{{with .Policy}}<br><small>Rule {{.}}</small>{{end}}</td><td>{{printf "%.1f" (milliseconds .Duration)}} ms</td>
+          <td><a href="/requests?id={{.RequestID}}"><code>{{.RequestID}}</code></a></td></tr>
+      {{end}}</tbody>
+    </table></div>
+    {{else}}<p>No requests match these filters.</p>{{end}}
+  </section>
+</main>
+</html>

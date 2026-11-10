@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teams and Keys · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard">Dashboard</a> <a href="/">API catalog</a> <a href="/requests">Requests</a> <a href="/access" aria-current="page">Teams &amp; Keys</a> <a href="/policies">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">MANAGE</span>
+  <h1>Teams and API keys</h1>
+  <p>Issue a separate gateway key for each application and API.</p>
+  {{with .Secret}}
+  <section aria-label="New key">
+    <h2>Copy your new key</h2>
+    <p>The portal shows this secret once. Send it in the <code>X-Gateway-Key</code> header.</p>
+    <input aria-label="New gateway key" readonly value="{{.}}">
+  </section>
+  {{end}}
+  <section>
+    <h2>Teams</h2>
+    {{if .Teams}}<ul>{{range .Teams}}<li>{{.}}</li>{{end}}</ul>{{else}}<p>Start by creating a team.</p>{{end}}
+    {{if .Workspace}}<p><a href="/members">Manage portal accounts and API grants</a></p><form method="post" action="/access/teams">
+      <label>Team slug<input name="team" required maxlength="63" placeholder="billing"></label>
+      <div></div><button>Create team</button>
+    </form>{{end}}
+  </section>
+  {{if and .Teams .APIs}}
+  <section>
+    <h2>Issue a key</h2>
+    <form class="import" method="post" action="/access/keys">
+      <label>Team<select name="team">{{range .Teams}}<option>{{.}}</option>{{end}}</select></label>
+      <label>Application slug<input name="app" required maxlength="63" placeholder="billing-worker-prod"></label>
+      <label>API<select name="api">{{range .APIs}}<option>{{.Slug}}</option>{{end}}</select></label>
+      <button>Issue key</button>
+    </form>
+  </section>
+  {{end}}
+  <section>
+    <h2>Gateway access</h2>
+    {{if .APIs}}
+    <div class="table"><table><thead><tr><th>API</th><th>Access</th><th>Action</th></tr></thead>
+    <tbody>{{range .APIs}}<tr><th scope="row">{{.Slug}}</th><td>{{if .Protected}}Gateway key required{{else}}Gateway key optional{{end}}</td><td>
+      {{if and $.Workspace (not .Protected)}}<form method="post" action="/access/protect" style="display:block"><input type="hidden" name="api" value="{{.Slug}}"><button>Require gateway key</button></form>{{end}}
+    </td></tr>{{end}}</tbody></table></div>
+    {{else}}<p>Publish or register an API to manage its access.</p>{{end}}
+  </section>
+  <section>
+    <h2>Issued keys</h2>
+    {{if .Keys}}
+    <div class="table"><table><thead><tr><th>Team and app</th><th>API</th><th>Key ID</th><th>State</th><th>Actions</th></tr></thead>
+    <tbody>{{range .Keys}}<tr><th scope="row">{{.Team}} / {{.App}}</th><td>{{.API}}</td><td><code>{{.ID}}</code></td>
+      <td>{{if .Revoked}}Revoked{{else if not .Active}}Expired{{else if .Expires}}Expires {{expiry .Expires}}{{else}}Active{{end}}</td>
+      <td>{{if .Active}}
+        {{if not .Expires}}<form method="post" action="/access/keys/{{.ID}}/rotate" style="display:flex;align-items:end"><label>Overlap hours<input type="number" name="hours" min="0" max="168" value="24" required></label><button>Rotate</button></form>{{end}}
+        <form method="post" action="/access/keys/{{.ID}}/revoke" style="display:block;margin-top:5px"><button>Revoke</button></form>
+      {{end}}</td></tr>{{end}}</tbody></table></div>
+    {{else}}<p>No keys have been issued.</p>{{end}}
+  </section>
+</main>
+</html>

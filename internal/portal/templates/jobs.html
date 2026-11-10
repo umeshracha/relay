@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bulk Jobs · API Telemetry Gateway</title>
+{{template "styles"}}
+<header>API Telemetry Gateway <nav aria-label="Portal"><a href="/dashboard">Dashboard</a> <a href="/">API catalog</a> <a href="/requests">Requests</a> <a href="/access">Teams &amp; Keys</a> <a href="/policies">Traffic Policies</a> <a href="/audit">Audit Log</a> <a href="/jobs" aria-current="page">Bulk Jobs</a></nav></header>
+<main>
+  <span class="label">OPERATIONS</span>
+  <h1>Bulk jobs</h1>
+  <section>
+    <h2>Import OpenAPI files</h2>
+    <p>Add one upstream and file per API. The combined upload limit is 8 MiB.</p>
+    <form id="bulk-import" method="post" action="/jobs/import" enctype="multipart/form-data" style="display:block;margin-top:12px">
+      <div id="bulk-items">
+        <fieldset><legend>API</legend>
+          <label>Gateway slug<input name="slug" required maxlength="63"></label>
+          <label>Upstream URL<input name="upstream" type="url" required maxlength="2048"></label>
+          <label>OpenAPI file<input name="document" type="file" accept=".json,.yaml,.yml" required></label>
+        </fieldset>
+      </div>
+      <div style="margin-top:12px"><button type="button" id="add-api">Add another API</button> <button type="submit">Preview imports</button></div>
+    </form>
+  </section>
+  <section>
+    <h2>Import traffic policies</h2>
+    <p>Paste a JSON array with up to 20 rule definitions.</p>
+    <form method="post" action="/jobs/policies" style="display:block;margin-top:12px">
+      <label>Policy definitions<textarea name="rules" rows="5" required placeholder='[{"Scope":"api","Target":"billing","Rate":60,"Burst":10,"Observe":true}]'></textarea></label>
+      <button type="submit">Preview policies</button>
+    </form>
+  </section>
+  <section>
+    <h2>Recent jobs</h2>
+    {{if .}}
+    <div class="table"><table><thead><tr><th>Job</th><th>State</th><th>Succeeded</th><th>Failed</th></tr></thead>
+      <tbody>{{range .}}<tr><th scope="row"><a href="/jobs/{{.ID}}">{{.Kind}}</a></th><td>{{.State}}</td><td>{{.Succeeded}} / {{.Total}}</td><td>{{.Failed}}</td></tr>{{end}}</tbody>
+    </table></div>
+    {{else}}<p>No jobs yet. Start a full CSV export from <a href="/requests">Requests</a>.</p>{{end}}
+  </section>
+</main>
+<script>
+const items = document.getElementById("bulk-items");
+const add = document.getElementById("add-api");
+add.addEventListener("click", () => {
+  const row = items.firstElementChild.cloneNode(true);
+  row.querySelectorAll("input").forEach(input => { input.value = ""; });
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.textContent = "Remove API";
+  remove.addEventListener("click", () => { row.remove(); add.disabled = false; });
+  row.append(remove);
+  items.append(row);
+  add.disabled = items.children.length >= 20;
+  row.querySelector("input").focus();
+});
+</script>
+</html>
