@@ -1,10 +1,53 @@
-# API Telemetry Gateway
+# Relay
+
+![Relay — API telemetry gateway](docs/assets/relay-banner.png)
 
 A self-hosted gateway for existing HTTP APIs. The web catalog supports manual upstream registration and OpenAPI imports with a route preview and explicit publishing.
 
 - Go 1.25+ and the standard library HTTP reverse proxy.
 - SQLite via the pure-Go modernc.org/sqlite driver.
 - Server-rendered HTML and CSS embedded in the Go binary.
+
+[Quick start](#run-locally) · [OpenAPI import](#import-an-openapi-api) · [Team access](#teams-keys-and-traffic-policies) · [Operations](#operate-a-deployment)
+
+## Explore the features
+
+<details open>
+<summary><strong>Follow a request through Relay</strong></summary>
+
+![Animated diagram of an API request, traffic policy checks, and telemetry](docs/assets/relay-walkthrough.gif)
+
+A client calls Relay’s published endpoint. Relay checks the gateway key and applicable traffic policies, forwards allowed requests, and batches status and timing data for the dashboard.
+
+</details>
+
+<details>
+<summary><strong>Preview API changes before publishing</strong></summary>
+
+[Import an OpenAPI document](#import-an-openapi-api), review the routes, and test upstream reachability before publishing. Relay keeps the active routes in memory, and you can reactivate a previous published revision from the portal.
+
+</details>
+
+<details>
+<summary><strong>Give each application its own key</strong></summary>
+
+[Grant teams access to selected APIs](#teams-keys-and-traffic-policies). Team admins can issue keys to their applications and rotate them with an overlap window so clients can switch without downtime. Revocation applies to subsequent requests immediately.
+
+</details>
+
+<details>
+<summary><strong>Measure traffic and enforce limits</strong></summary>
+
+See request counts, 5xx errors, gateway denials, and p50, p95, and p99 latency in the [dashboard](#explore-requests). Find individual requests by ID and export matching events as CSV. Use [traffic policies](#teams-keys-and-traffic-policies) to observe or enforce quotas and IP rules.
+
+</details>
+
+<details>
+<summary><strong>Make bulk changes and track who made them</strong></summary>
+
+[Bulk jobs](#bulk-jobs) preview OpenAPI imports and traffic rules, report failures by item, and support retry. The [audit log](#audit-log) records the actor and target for committed changes.
+
+</details>
 
 ## Run locally
 
@@ -90,3 +133,7 @@ python3 tests/smoke.py ./gateway
 ```
 
 The smoke suite covers live publication and rollback, team isolation and key revocation, IP policies, batch jobs and restart replay, HTTPS, and backup restoration. It sends 480 requests at concurrency 12 and checks that graceful shutdown persisted all 480 telemetry events.
+
+## License
+
+[MIT License](LICENSE) · Copyright © 2026 Umesh
