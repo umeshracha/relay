@@ -8,7 +8,7 @@ Relay is an open-source, self-hosted API gateway for monitoring existing HTTP AP
 - SQLite via the pure-Go modernc.org/sqlite driver.
 - Server-rendered HTML and CSS embedded in the Go binary.
 
-[Quick start](#run-locally) · [OpenAPI import](#import-an-openapi-api) · [Team access](#teams-keys-and-traffic-policies) · [Operations](#operate-a-deployment) · [Current limitations](#current-limitations)
+[Download v0.1.0](https://github.com/umeshracha/relay/releases/tag/v0.1.0) · [Umesh’s website](https://umeshracha.com) · [Quick start](#run-locally) · [OpenAPI import](#import-an-openapi-api) · [Team access](#teams-keys-and-traffic-policies) · [Operations](#operate-a-deployment) · [Current limitations](#current-limitations)
 
 ## Explore the features
 
@@ -56,7 +56,7 @@ See request counts, 5xx errors, gateway denials, and p50, p95, and p99 latency i
 | High availability | Relay runs as one instance per SQLite database set. Rate limit counters live in memory and reset when the process restarts. Shared quotas across gateway replicas are still missing. |
 | Telemetry retention | Relay keeps the most recent 100,000 events. Its bounded queue can drop events under pressure, and a process crash can lose events that have yet to be written. |
 | Portal sign-in | The portal uses HTTP Basic authentication with local accounts and team roles. SSO through OIDC or SAML is still missing. |
-| Installation | The project documents a source build. Prebuilt GitHub release downloads and a GitHub Actions build pipeline are still missing. |
+| Installation | Prebuilt Linux and macOS archives are available. Release builds are currently packaged manually. |
 
 ## Run locally
 
